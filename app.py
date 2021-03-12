@@ -31,7 +31,6 @@ Station = Base.classes.station
 #################################################
 app = Flask(__name__)
 
-
 #################################################
 # Flask Routes
 #################################################
@@ -140,14 +139,14 @@ def two_dates (start,end):
     results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
     filter(Measurement.date >= start).filter(Measurement.date <= end).all()  
     session.close()
-    start__end_date_data = []
+    start_end_date_data = []
     for min, avg, max in results:
         start__end_date_dict = {}
         start__end_date_dict["min_temp"] = min
         start__end_date_dict["avg_temp"] = avg
         start__end_date_dict["max_temp"] = max
-        start__end_date_data.append(start__end_date_dict) 
-    return jsonify(start__end_date_data)
+        start__end_date_data.append(start_end_date_dict) 
+    return jsonify(start_end_date_data)
 
 if __name__ == '__main__':
     app.run(debug=True)
