@@ -24,7 +24,7 @@ Base.prepare(engine, reflect=True)
 
 # Save reference to the table
 Measurement = Base.classes.measurement
-station = Base.classes.station
+Station = Base.classes.station
 
 #################################################
 # Flask Setup
@@ -44,26 +44,29 @@ def welcome():
         f"/api/v1.0/precipitation<br/>"
         f"/api/v1.0/stations<br/>"
         f"/api/v1.0/tobs<br/>"
-        f"/api/v1.0/<start><br/>"
-        f"/api/v1.0/<start>/<end>"
+        f"/api/v1.0/enter requested start date in yyyy-mm-dd<br/>"
+        f"/api/v1.0/enter requested start date in yyyy-mm-dd/enter requested end date in yyyy-mm-dd"
     )
 
 
 @app.route("/api/v1.0/precipitation")
-# def names():
-#     # Create our session (link) from Python to the DB
-#     session = Session(engine)
+def precipitation():
+    # Create our session (link) from Python to the DB
+    session = Session(engine)
 
-#     """Return a list of all passenger names"""
-#     # Query all passengers
-#     results = session.query(Passenger.name).all()
+    # Query to obtain Precipitation information
+    prcp = session.query(Measurement.date, Measurement.prcp).all()
+    session.close()
 
-#     session.close()
+    # Add data obtained into a list
+    prcp_list = []
+    for date, prcp in prcp:
+        prcp_dict = {}
+        prcp_dict["date"] = date
+        prcp_dict["prcp"] = prcp
+        prcp_list.append(prcp_dict)
 
-#     # Convert list of tuples into normal list
-#     all_names = list(np.ravel(results))
-
-#     return jsonify(all_names)
+    return jsonify(prcp_list)
 
 
 # @app.route("/api/v1.0/passengers")
@@ -86,8 +89,34 @@ def welcome():
 #         passenger_dict["sex"] = sex
 #         all_passengers.append(passenger_dict)
 
-#     return jsonify(all_passengers)
+# Date Start route
+# @app.route("/api/v1.0/<start>")
+# def search_date (start):
+#      session = Session(engine)
+# # # #     # Query all stations and precips
+#      results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+#      filter(Measurement.date >= start).all()   session.close()    start_date_data = []
+#      for min, avg, max in results:
+#          start_date_data_dict = {​​​​​}​​​​​
+#          start_date_data_dict["min_temp"] = min
+#          start_date_data_dict["avg_temp"] = avg
+#          start_date_data_dict["max_temp"] = max
+#          start_date_data.append(start_date_data_dict)     return jsonify(start_date_data)
 
+#Dates cont.
+# @app.route("/api/v1.0/<start>/<end>")
+# def two_dates (start,end):
+#     session = Session(engine)
+# # #     # Query all stations and precips
+#     results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+#     filter(Measurement.date >= start).filter(Measurement.date <= end).all()      session.close()    start__end_date_data = []
+#     for min, avg, max in results:
+#         start__end_date_dict = {​​​​​}​​​​​
+#         start__end_date_dict["min_temp"] = min
+#         start__end_date_dict["avg_temp"] = avg
+#         start__end_date_dict["max_temp"] = max
+#         start__end_date_data.append(start__end_date_dict) 
+#     return jsonify(start__end_date_data)
 
 if __name__ == '__main__':
     app.run(debug=True)
