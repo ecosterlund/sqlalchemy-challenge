@@ -73,16 +73,17 @@ def precipitation():
 def stations():
     # Create our session (link) from Python to the DB
     session = Session(engine)
-
-    # Query to obtain Stations information
-    stations = session.query(Station.station).all()
+    # query all stations
+    stations = session.query(Station.id, Station.name).all()
     session.close()
-
-    # Add data obtained into a list
-    stations_data = []
-    for station in stations:
-        stations_data.append(station)
-    return jsonify(stations_data)
+    # Create a dictionary from the row data and append to a list
+    station_info = []
+    for id, name in stations:
+        station_dict = {}
+        station_dict["Station ID"] = id
+        station_dict["Station Name"] = name
+        station_info.append(station_dict)
+    return jsonify(station_info)
 
 
 @app.route("/api/v1.0/tobs")
@@ -106,34 +107,47 @@ def tobs():
     return jsonify(tobs_info)
 
 
-# Date Start route
-# @app.route("/api/v1.0/<start>")
-# def search_date (start):
-#      session = Session(engine)
-# # # #     # Query all stations and precips
-#      results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
-#      filter(Measurement.date >= start).all()   session.close()    start_date_data = []
-#      for min, avg, max in results:
-#          start_date_data_dict = {​​​​​}​​​​​
-#          start_date_data_dict["min_temp"] = min
-#          start_date_data_dict["avg_temp"] = avg
-#          start_date_data_dict["max_temp"] = max
-#          start_date_data.append(start_date_data_dict)     return jsonify(start_date_data)
+#     Query most recent and oldest date in dataset    #
 
-#Dates cont.
-# @app.route("/api/v1.0/<start>/<end>")
-# def two_dates (start,end):
-#     session = Session(engine)
-# # #     # Query all stations and precips
-#     results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
-#     filter(Measurement.date >= start).filter(Measurement.date <= end).all()      session.close()    start__end_date_data = []
-#     for min, avg, max in results:
-#         start__end_date_dict = {​​​​​}​​​​​
-#         start__end_date_dict["min_temp"] = min
-#         start__end_date_dict["avg_temp"] = avg
-#         start__end_date_dict["max_temp"] = max
-#         start__end_date_data.append(start__end_date_dict) 
-#     return jsonify(start__end_date_data)
+# Create our session (link) from Python to the DB
+session = Session(engine)
+start_dt = session.query(Measurement.date).order_by(Measurement.date.asc()).first()
+start_dt = start_dt[0].replace("-", "")
+end_dt = session.query(Measurement.date).order_by(Measurement.date.desc()).first()
+end_dt = end_dt[0].replace("-", "")
+session.close()
+
+@app.route("/api/v1.0/<start>")
+def search_date (start):
+    session = Session(engine)
+# #     # Query all stations and precips
+    results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+    filter(Measurement.date >= start).all()  
+    session.close()
+    start_date_data = []
+    for min, avg, max in results:
+        start_date_data_dict = {}
+        start_date_data_dict["min_temp"] = min
+        start_date_data_dict["avg_temp"] = avg
+        start_date_data_dict["max_temp"] = max
+        start_date_data.append(start_date_data_dict) 
+    return jsonify(start_date_data)
+
+@app.route("/api/v1.0/<start>/<end>")
+def two_dates (start,end):
+    session = Session(engine)
+# #     # Query all stations and precips
+    results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
+    filter(Measurement.date >= start).filter(Measurement.date <= end).all()  
+    session.close()
+    start__end_date_data = []
+    for min, avg, max in results:
+        start__end_date_dict = {}
+        start__end_date_dict["min_temp"] = min
+        start__end_date_dict["avg_temp"] = avg
+        start__end_date_dict["max_temp"] = max
+        start__end_date_data.append(start__end_date_dict) 
+    return jsonify(start__end_date_data)
 
 if __name__ == '__main__':
     app.run(debug=True)
