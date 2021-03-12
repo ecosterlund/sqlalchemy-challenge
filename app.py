@@ -84,6 +84,28 @@ def stations():
         stations_data.append(station)
     return jsonify(stations_data)
 
+
+@app.route("/api/v1.0/tobs")
+def tobs():
+    # Create our session (link) from Python to the DB
+    session=Session(engine)
+
+    # Query to obtain Temperatures information and most recent date
+    recent_date = session.query(Measurement.date).order_by(Measurement.date.desc()).first()
+    year_ago = dt.date(2017,8,23) - dt.timedelta(days=365)
+    tobs_year = session.query(Measurement.date, Measurement.tobs).filter(Measurement.date >= year_ago).order_by(Measurement.date.desc()).all()
+    session.close()
+    
+    # Add data obtained into a list
+    tobs_info = []
+    for date, tobs in tobs_year:
+        tobs_dict = {}
+        tobs_dict['date'] = date
+        tobs_dict['tobs'] = tobs
+        tobs_info.append(tobs_dict)
+    return jsonify(tobs_info)
+
+    
 # Date Start route
 # @app.route("/api/v1.0/<start>")
 # def search_date (start):
