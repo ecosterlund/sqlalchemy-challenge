@@ -36,7 +36,7 @@ from flask import Flask, jsonify
 #################################################
 # Database Setup
 #################################################
-engine = create_engine("sqlite:///titanic.sqlite")
+engine = create_engine("sqlite:///precipitation.sqlite")
 
 # reflect an existing database into a new model
 Base = automap_base()
@@ -61,8 +61,11 @@ def welcome():
     """List all available api routes."""
     return (
         f"Available Routes:<br/>"
-        f"/api/v1.0/names<br/>"
-        f"/api/v1.0/passengers"
+        f"/api/v1.0/precipitation<br/>"
+        f"/api/v1.0/stations<br/>"
+        f"/api/v1.0/tobs<br/>"
+        f"/api/v1.0/<start><br/>"
+        f"/api/v1.0/<start>/<end>"
     )
 
 
