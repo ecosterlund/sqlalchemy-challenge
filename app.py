@@ -106,15 +106,6 @@ def tobs():
     return jsonify(tobs_info)
 
 
-#     Query most recent and oldest date in dataset    #
-
-# Create our session (link) from Python to the DB
-session = Session(engine)
-start_dt = session.query(Measurement.date).order_by(Measurement.date.asc()).first()
-start_dt = start_dt[0].replace("-", "")
-end_dt = session.query(Measurement.date).order_by(Measurement.date.desc()).first()
-end_dt = end_dt[0].replace("-", "")
-session.close()
 
 @app.route("/api/v1.0/<start>")
 def search_date (start):
