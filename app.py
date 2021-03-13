@@ -107,37 +107,41 @@ def tobs():
 
 
 
-@app.route("/api/v1.0/<start>")
-def search_date (start):
+@app.route("/api/v1.0/<start_date>")
+def solo_date(start_date):
+    # Create our session (link) from Python to the DB
     session = Session(engine)
-# #     # Query all stations and precips
+    # query min/max/avg tobs from a start date
     results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
-    filter(Measurement.date >= start).all()  
+    filter(Measurement.date >= start_date).all()  
     session.close()
-    start_date_data = []
+    # Create a dictionary for min/max/avg tobs
+    date_list = []
     for min, avg, max in results:
-        start_date_data_dict = {}
-        start_date_data_dict["min_temp"] = min
-        start_date_data_dict["avg_temp"] = avg
-        start_date_data_dict["max_temp"] = max
-        start_date_data.append(start_date_data_dict) 
-    return jsonify(start_date_data)
+        date_list_dict = {}
+        date_list_dict["min_temp"] = min
+        date_list_dict["avg_temp"] = avg
+        date_list_dict["max_temp"] = max
+        date_list.append(date_list_dict) 
+    return jsonify(date_list)
 
-@app.route("/api/v1.0/<start>/<end>")
-def two_dates (start,end):
+@app.route("/api/v1.0/<start_date>/<end_date>")
+def two_dates(start_date,end_date):
+    # Create our session (link) from Python to the DB
     session = Session(engine)
-# #     # Query all stations and precips
+    # query min/max/avg tobs from a start date
     results = session.query(func.min(Measurement.tobs), func.avg(Measurement.tobs), func.max(Measurement.tobs)).\
-    filter(Measurement.date >= start).filter(Measurement.date <= end).all()  
-    session.close()
-    start_end_date_data = []
+    filter(Measurement.date >= start_date).filter(Measurement.date <= end_date).all()
+    session.close()  
+    # Create a dictionary for min/max/avg tobs between the two dates
+    two_date_list = []
     for min, avg, max in results:
-        start_end_date_dict = {}
-        start_end_date_dict["min_temp"] = min
-        start_end_date_dict["avg_temp"] = avg
-        start_end_date_dict["max_temp"] = max
-        start_end_date_data.append(start_end_date_dict) 
-    return jsonify(start_end_date_data)
+        two_date_dict = {}
+        two_date_dict["Min. Temp (F)"] = min
+        two_date_dict["Avg. Temp (F)"] = avg
+        two_date_dict["Max Temp (F)"] = max
+        two_date_list.append(two_date_dict) 
+    return jsonify(two_date_list)
 
 if __name__ == '__main__':
     app.run(debug=True)
